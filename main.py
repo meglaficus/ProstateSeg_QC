@@ -13,10 +13,6 @@ WHOLE_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/miami/separ
 PERIPHERAL_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/miami/separate_masks/peripheral'
 CENTRAL_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/miami/separate_masks/central'
 
-# WHOLE_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/ita/zones/whole'
-# PERIPHERAL_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/ita/zones/perif'
-# CENTRAL_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/ita/zones/central'
-
 # Change to save somewhere else:
 WHOLE_OUT = 'out/whole'
 PERIPHERAL_OUT = 'out/peripheral'
@@ -132,4 +128,9 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
 
 
 if __name__ == '__main__':
+    os.makedirs(WHOLE_OUT, exist_ok=True)
+    os.makedirs(PERIPHERAL_OUT, exist_ok=True)
+    os.makedirs(CENTRAL_OUT, exist_ok=True)
+    os.makedirs('change_log', exist_ok=True)
+
     main(to_save=True)
