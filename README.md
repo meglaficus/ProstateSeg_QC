@@ -14,11 +14,12 @@ It also pays special attention to all the snippets that are labeled as central z
 ## Requirements
 
 The program requires these modules to be installed:
-numpy
-pandas
-SimpleITK
-connected-components-3d
-tqdm
+
+- numpy
+- pandas
+- SimpleITK
+- connected-components-3d
+- tqdm
 
 
 ## Usage
