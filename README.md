@@ -20,6 +20,7 @@ The program requires these modules to be installed:
 - SimpleITK
 - connected-components-3d
 - tqdm
+- regex
 
 
 ## Usage
