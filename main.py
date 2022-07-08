@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import numpy as np
 import pandas as pd
 from tools.filename_tools import *
 from tqdm import tqdm
@@ -9,9 +8,9 @@ from tools.functions import filter_small_components, process_scan
 from tools.scan_class import Scan
 
 # Enter paths to folders containing the scans:
-WHOLE_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/miami/separate_masks/whole'
-PERIPHERAL_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/miami/separate_masks/peripheral'
-CENTRAL_PATH = '/home/jakobmeg/PycharmProjects/PS-obj/data/train/masks/miami/separate_masks/central'
+WHOLE_PATH = ''
+PERIPHERAL_PATH = ''
+CENTRAL_PATH = ''
 
 # Change to save somewhere else:
 WHOLE_OUT = 'out/whole'
