@@ -11,6 +11,15 @@ The algorithm requires separate files for the whole prostate mask, the periphera
 
 It also pays special attention to all the snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask.
 
+## Requirements
+
+The program requires these modules to be installed:
+numpy
+pandas
+SimpleITK
+connected-components-3d
+tqdm
+
 
 ## Usage
 
