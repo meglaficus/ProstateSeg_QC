@@ -100,7 +100,7 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
         if to_save:
             # If changed_only is True, only write the files if there were changes else writes all files
             if changed_only:
-                if whole_scan_aug.filtered or whole_scan_aug.patched:
+                if whole_scan_aug.filtered or whole_scan_aug.patched or mismatch:
                     whole_scan_aug.write_image(
                         os.path.join(WHOLE_OUT, scan_name))
 
