@@ -1,7 +1,7 @@
 # ProstateSeg_QC
 
 
-ProstateSeg_QC is a quality control algorithm to fix prostate zone segmentation masks. It finds and rectifies common errors that occur during manual segmentation.
+ProstateSeg_QC is a quality control algorithm to fix prostate zone segmentation masks. It finds and rectifies common errors that occur during manual segmentation.??
 
 ## Method
 
