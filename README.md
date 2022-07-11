@@ -40,7 +40,7 @@ The program requires these modules to be installed:
 
 ## Usage
 
-First clone or fork repo. Then open main.py and enter the paths to relevant directories at top of file as show bellow. Then just run main.
+First clone or fork repo. Then open main.py and enter the paths to relevant directories at top of file as shown bellow. Then just run main.
 
 ```python
 WHOLE_PATH = '/<example path>/whole'
@@ -48,6 +48,8 @@ PERIPHERAL_PATH = '/<example path>/peripheral'
 CENTRAL_PATH = '/<example path>/central'
 ```
 By default the program saves only the masks that were changed, saving them into new directories that are created in the cwd. It also creates .csv files that store the information on all the errors that were found.
+
+If you are working with masks files where there is a single mask file for both zones do not fret! This is why 'tools/separate_masks.py' is for. If you want to join the masks back together, use 'tools/join_masks.py' .
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

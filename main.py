@@ -63,8 +63,6 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
         try:
             whole_test = whole_scan.array - whole_scan0.array
             if np.count_nonzero(whole_test) != 0:
-                tqdm.write(
-                    f'{scan_name} whole mask does not match the peripheral and central masks! {np.sum(np.nonzero(whole_test))} voxels different.')
                 mismatch = True
         except Exception as e:
             tqdm.write(
@@ -148,6 +146,9 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
     perif_df = perif_df[(perif_df['perif_filtered'] == True) | (
         perif_df['perif_patched'] == True) | (perif_df['strays_converted'] == True)]
     perif_df.to_csv('change_log/perif_mods.csv')
+
+    for column in df.columns[1:]:
+        print(column, df[column].sum())
 
 
 if __name__ == '__main__':
