@@ -1,17 +1,31 @@
 # ProstateSeg_QC
 
 
-ProstateSeg_QC is a quality control algorithm to fix prostate zone segmentation masks. It finds and rectifies common errors that occur during manual segmentation.??
+ProstateSeg_QC is a quality control algorithm to fix prostate zone segmentation masks. It finds and rectifies common errors that occur during manual segmentation.
 
 ## Method
 
 This is an all-in-one algorithm to process the entire dataset. It is largely based on finding and analyzing connected components.
 
 The algorithm requires separate files for the whole prostate mask, the peripheral zone mask and the non-peripheral (central) zone mask. Here is what it does:
-1. Finds and removes all small connected components from all the masks.
-2. It also patches all the holes in the masks.
-3. Finds snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask. It converts those to peripheral zone.
-4. Checks if the whole mask equals the sum of the peripheral and central zone masks. If not, it replaces the whole mask.
+- Finds and removes all small connected components from all the masks.
+
+![Example 1](examples/filter.jpg)
+
+
+- Finds and patches all small holes in the masks.
+
+![Example 2](examples/hole_in_center.jpg)
+
+
+- Finds snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask. It converts those to peripheral zone.
+
+![Example 3](examples/snippet_red.jpg)
+
+
+- Checks if the whole mask equals the sum of the peripheral and central zone masks. If not, it replaces the whole mask.
+
+
 ## Requirements
 
 The program requires these modules to be installed:
