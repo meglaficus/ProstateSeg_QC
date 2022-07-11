@@ -80,7 +80,7 @@ def patch_holes(base_array: np.ndarray) -> tuple[np.ndarray, bool]:
         combined_array = np.zeros(base_array.shape)
 
         for size, array in arrays:
-            if size < biggest / 10:
+            if size < biggest / 100:
                 combined_array += array
 
         patched_array = base_array + combined_array

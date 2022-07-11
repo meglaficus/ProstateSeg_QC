@@ -3,6 +3,7 @@ from copy import deepcopy
 import pandas as pd
 from tools.filename_tools import *
 from tqdm import tqdm
+import numpy as np
 
 from tools.functions import filter_small_components, process_scan
 from tools.scan_class import Scan
@@ -20,7 +21,7 @@ CENTRAL_OUT = 'out/central'
 
 def main(to_save: bool = True, changed_only: bool = True) -> None:
     """Main function of this program. Performs the analysis of all the masks. Requires the paths to the folders containing the masks to be defined.
-    Only works if all the folder paths are defined and if they contain all the masks.
+    Only works if all the folder paths are defined and if they contain all the masks. Currently only works with .nii.gz, .nii and .mhd files.
 
     Args:
         to_save (bool, optional): to save processed masks or not. Defaults to True.
@@ -28,28 +29,53 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
     """
 
     # Create dataframe to store all changes
-    scan_names = sorted(i for i in os.listdir(WHOLE_PATH))
-    df = pd.DataFrame(columns=['scan_name', 'whole_filtered', 'whole_patched', 'perif_filtered',
+
+    scan_names = sorted(i for i in os.listdir(
+        WHOLE_PATH) if i.endswith(('.nii.gz', '.nii', '.mhd')))
+
+    df = pd.DataFrame(columns=['scan_name', 'whole_filtered', 'whole_patched', 'whole_mismatch', 'perif_filtered',
                                'perif_patched', 'central_filtered', 'central_patched', 'strays_converted'])
 
     for scan_name in tqdm(scan_names):
-
         # Finds patient id to find matching mask in other folders
         try:
             pt_id = find_seq_num(scan_name)
         except:
             pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
 
-        # Processes whole prostate mask
         whole_scan_path = os.path.join(WHOLE_PATH, scan_name)
-        whole_scan = Scan(path=whole_scan_path)
+        whole_scan0 = Scan(path=whole_scan_path)
+
+        central_scan_name = find_scan_name(pt_id, CENTRAL_PATH)
+        central_scan_path = os.path.join(CENTRAL_PATH, central_scan_name)
+        central_scan = Scan(path=central_scan_path)
+
+        perif_scan_name = find_scan_name(pt_id, PERIPHERAL_PATH)
+        perif_scan_path = os.path.join(PERIPHERAL_PATH, perif_scan_name)
+        perif_scan = Scan(path=perif_scan_path)
+
+        # Create another 'whole' scan to make all the three masks match up
+        whole_scan_array = np.zeros(central_scan.array.shape)
+        whole_scan_array[(central_scan.array == 1) |
+                         (perif_scan.array == 1)] = 1
+        whole_scan = Scan(array=whole_scan_array, ref=central_scan.image)
+        mismatch = False
+        try:
+            whole_test = whole_scan.array - whole_scan0.array
+            if np.count_nonzero(whole_test) != 0:
+                tqdm.write(
+                    f'{scan_name} whole mask does not match the peripheral and central masks! {np.sum(np.nonzero(whole_test))} voxels different.')
+                mismatch = True
+        except Exception as e:
+            tqdm.write(
+                f'{e} \n Something wrong with {scan_name}, possibly the dimensions dont match between the different masks')
+
+        # Processes whole prostate mask
         whole_scan_aug = process_scan(
             whole_scan, to_patch_holes=True, to_filter_small_components=True)
 
         # Processes central zone mask
-        central_scan_name = find_scan_name(pt_id, CENTRAL_PATH)
-        central_scan_path = os.path.join(CENTRAL_PATH, central_scan_name)
-        central_scan = Scan(path=central_scan_path)
+
         central_scan_aug = process_scan(
             central_scan, to_patch_holes=True, to_filter_small_components=True)
 
@@ -61,9 +87,7 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
             central_array_aug0)
 
         # Does initial processing of peripheral zone mask
-        perif_scan_name = find_scan_name(pt_id, PERIPHERAL_PATH)
-        perif_scan_path = os.path.join(PERIPHERAL_PATH, perif_scan_name)
-        perif_scan = Scan(path=perif_scan_path)
+
         perif_scan_aug_raw = process_scan(
             perif_scan, to_patch_holes=True, to_filter_small_components=True)
 
@@ -97,7 +121,7 @@ def main(to_save: bool = True, changed_only: bool = True) -> None:
 
         # Adds row to dataframe, logging all the findings
         df.loc[pt_id] = {'scan_name': scan_name,
-                         'whole_filtered': whole_scan_aug.filtered, 'whole_patched': whole_scan_aug.patched,
+                         'whole_filtered': whole_scan_aug.filtered, 'whole_patched': whole_scan_aug.patched, 'whole_mismatch': mismatch,
                          'perif_filtered': perif_scan_aug_raw.filtered, 'perif_patched': perif_scan_aug_raw.patched,
                          'central_filtered': central_scan_aug.filtered, 'central_patched': central_scan_aug.patched,
                          'strays_converted': converted_strays}

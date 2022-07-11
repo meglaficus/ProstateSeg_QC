@@ -9,7 +9,9 @@ This is an all-in-one algorithm to process the entire dataset. It is largely bas
 
 The algorithm requires separate files for the whole prostate mask, the peripheral zone mask and the non-peripheral (central) zone mask. It finds and removes all small connected components from all the masks. It also patches all the holes in the masks. 
 
-It also pays special attention to all the snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask.
+It also pays special attention to all the snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask. Example here:
+
+The way it is written is that you input the whole prostate mask as well as the individual zones. This is to check if the sum of the individual zones is the same as the whole prostate mask.
 
 ## Requirements
 
