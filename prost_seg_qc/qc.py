@@ -237,7 +237,8 @@ def qc_lesion(LESION_PATH: str,
         except:
             pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
 
-        lesion_scan = Scan(path=scan_name)
+        scan_path = os.path.join(LESION_PATH, scan_name)
+        lesion_scan = Scan(path=scan_path)
         lesion_aug = process_scan(
             lesion_scan, to_patch_holes=True, to_filter_small_components=True)
 
@@ -253,9 +254,8 @@ def qc_lesion(LESION_PATH: str,
                     os.path.join(LESION_OUT, scan_name))
 
         # Adds row to dataframe, logging all the findings
-
         df.loc[pt_id] = {'scan_name': scan_name,
-                         'whole_filtered': lesion_scan.filtered, 'whole_patched': lesion_scan.patched,
+                         'lesion_filtered': lesion_aug.filtered, 'lesion_patched': lesion_aug.patched,
                          }
 
     # Saves information about all changes to a csv file

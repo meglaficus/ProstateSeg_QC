@@ -4,7 +4,6 @@ import numpy as np
 from copy import deepcopy
 from ..tools.scan_class import Scan
 
-
 def find_sort_components(array: np.ndarray, connectivity: int = 6) -> list:
     """finds all connected components in the array and sorts them by voxel number.
 
@@ -34,7 +33,7 @@ def find_sort_components(array: np.ndarray, connectivity: int = 6) -> list:
     return arrays
 
 
-def filter_small_components(base_array: np.ndarray) -> tuple[np.ndarray, bool]:
+def filter_small_components(base_array: np.ndarray):
     """Finds all connected components in the array and filters out those that are smaller than 1/10 of the largest component.
 
     Args:
