@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(name='ProstateSeg_QC',
       packages=find_namespace_packages(
-          include=["prost_seg_qc", "prost_seg_qc.*"]),
+          include=["pqc", "pqc.*"]),
       version='0.2',
       description='Automated quality control algorithm for prostate segmentation',
       url='https: // github.com/meglaficus/ProstateSeg_QC',
