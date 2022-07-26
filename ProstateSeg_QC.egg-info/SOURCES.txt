@@ -1,0 +1,6 @@
+README.md
+setup.py
+ProstateSeg_QC.egg-info/PKG-INFO
+ProstateSeg_QC.egg-info/SOURCES.txt
+ProstateSeg_QC.egg-info/dependency_links.txt
+ProstateSeg_QC.egg-info/top_level.txt
