@@ -1,7 +1,0 @@
-tqdm
-scipy
-numpy
-SimpleITK
-pandas
-connected-components-3d
-regex
