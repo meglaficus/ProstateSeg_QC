@@ -1,14 +1,14 @@
 from copy import deepcopy
 
 import pandas as pd
-from prost_seq_qc.tools.filename_prost_seq_qc.tools import *
+from .tools.filename_tools import *
 from tqdm import tqdm
 import numpy as np
 
-from prost_seq_qc.tools.functions import filter_small_components, process_scan
-from prost_seq_qc.tools.scan_class import Scan
-from prost_seq_qc.tools.separate_masks import separate_masks
-from prost_seq_qc.tools.join_masks import join_masks
+from .tools.functions import filter_small_components, process_scan
+from .tools.scan_class import Scan
+from .tools.separate_masks import separate_masks
+from .tools.join_masks import join_masks
 
 # Change to save somewhere else:
 WHOLE_OUT = 'out/whole'
@@ -16,8 +16,8 @@ PERIPHERAL_OUT = 'out/peripheral'
 CENTRAL_OUT = 'out/central'
 
 
-def qc(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: str = None, COMBINED_PATH: str = None,
-       to_save: bool = True, changed_only: bool = True, check_whole: bool = False) -> None:
+def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: str = None, COMBINED_PATH: str = None,
+            to_save: bool = True, changed_only: bool = True, check_whole: bool = False) -> None:
     """_summary_
 
     Args:
@@ -201,5 +201,67 @@ def qc(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: str = 
         join_masks(PERIPHERAL_OUT, CENTRAL_OUT, 'out/combined')
 
 
-if __name__ == '__main__':
-    qc(to_save=True)
+LESION_OUT = 'out/lesions'
+
+
+def qc_lesion(LESION_PATH: str,
+              to_save: bool = True, changed_only: bool = True) -> None:
+    """_summary_
+
+    Args:
+        WHOLE_PATH (str, optional): path to whole prostate masks. Defaults to None.
+        PERIPHERAL_PATH (str, optional): path to peripheral zone masks. Defaults to None.
+        CENTRAL_PATH (str, optional): path to central zone masks. Defaults to None.
+        COMBINED_PATH (str, optional): path to combined peripheral and central zone masks (Must be pz=1, cz=2!!!). Defaults to None.
+        to_save (bool, optional): to save or not. Defaults to True.
+        changed_only (bool, optional): to save only if changes made. Defaults to True.
+        check_whole (bool, optional): to check if whole masks == sum of zonal masks. Defaults to False.
+
+    """
+    # Check if variables are sound:
+
+    os.makedirs(LESION_OUT, exist_ok=True)
+    os.makedirs('change_log', exist_ok=True)
+
+    # Create dataframe to store all changes
+    scan_names = sorted(i for i in os.listdir(
+        LESION_PATH) if i.endswith(('.nii.gz', '.nii', '.mhd')))
+
+    df = pd.DataFrame(
+        columns=['scan_name', 'lesion_filtered', 'lesion_patched'])
+
+    for scan_name in tqdm(scan_names):
+        # Finds patient id to find matching mask in other folders
+        try:
+            pt_id = find_seq_num(scan_name)
+        except:
+            pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
+
+        lesion_scan = Scan(path=scan_name)
+        lesion_aug = process_scan(
+            lesion_scan, to_patch_holes=True, to_filter_small_components=True)
+
+        if to_save:
+            # If changed_only is True, only write the files if there were changes else writes all files
+            if changed_only:
+                if lesion_aug.filtered or lesion_aug.patched:
+                    lesion_aug.write_image(
+                        os.path.join(LESION_OUT, scan_name))
+
+            else:
+                lesion_aug.write_image(
+                    os.path.join(LESION_OUT, scan_name))
+
+        # Adds row to dataframe, logging all the findings
+
+        df.loc[pt_id] = {'scan_name': scan_name,
+                         'whole_filtered': lesion_scan.filtered, 'whole_patched': lesion_scan.patched,
+                         }
+
+    # Saves information about all changes to a csv file
+    df.sort_index(inplace=True)
+    df.to_csv('change_log/lesion_mods.csv')
+
+    # Creates new csv files for each zone, including only masks that were changed and logs the changes
+    for column in df.columns[1:]:
+        print(column, df[column].sum())

@@ -1,6 +1,16 @@
+LICENSE
 README.md
 setup.py
 ProstateSeg_QC.egg-info/PKG-INFO
 ProstateSeg_QC.egg-info/SOURCES.txt
 ProstateSeg_QC.egg-info/dependency_links.txt
+ProstateSeg_QC.egg-info/requires.txt
 ProstateSeg_QC.egg-info/top_level.txt
+prost_seg_qc/_init_.py
+prost_seg_qc/qc.py
+prost_seg_qc/tools/_init_.py
+prost_seg_qc/tools/filename_tools.py
+prost_seg_qc/tools/functions.py
+prost_seg_qc/tools/join_masks.py
+prost_seg_qc/tools/scan_class.py
+prost_seg_qc/tools/separate_masks.py
