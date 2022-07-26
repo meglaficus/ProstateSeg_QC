@@ -1,11 +1,11 @@
 Metadata-Version: 2.1
 Name: ProstateSeg-QC
-Version: 1.0
+Version: 0.2
 Summary: Automated quality control algorithm for prostate segmentation
 Home-page: https: // github.com/meglaficus/ProstateSeg_QC
 Author: Jakob Meglič, under MR Cancer group, NTNU
 Author-email: jakobmeglic123@gmail.com
-License: MIT
+License: Apache
 Keywords: prostate,segmentation,quality control,automated
 Platform: UNKNOWN
 License-File: LICENSE
