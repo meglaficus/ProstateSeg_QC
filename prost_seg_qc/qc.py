@@ -10,15 +10,11 @@ from .tools.scan_class import Scan
 from .tools.separate_masks import separate_masks
 from .tools.join_masks import join_masks
 
-# Change to save somewhere else:
-WHOLE_OUT = 'out/whole'
-PERIPHERAL_OUT = 'out/peripheral'
-CENTRAL_OUT = 'out/central'
-
 
 def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: str = None, COMBINED_PATH: str = None,
-            to_save: bool = True, changed_only: bool = True, check_whole: bool = False) -> None:
-    """_summary_
+            to_save: bool = True, changed_only: bool = True, check_whole: bool = False, WHOLE_OUT: str = 'out/whole',
+            PERIPHERAL_OUT: str = 'out/peripheral', CENTRAL_OUT: str = 'out/central', COMBINED_OUT: str = 'out/combined') -> None:
+    """Quality control on zonal masks.
 
     Args:
         WHOLE_PATH (str, optional): path to whole prostate masks. Defaults to None.
@@ -28,6 +24,10 @@ def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: s
         to_save (bool, optional): to save or not. Defaults to True.
         changed_only (bool, optional): to save only if changes made. Defaults to True.
         check_whole (bool, optional): to check if whole masks == sum of zonal masks. Defaults to False.
+        WHOLE_OUT (str, optional): where to save whole mask. Defaults to 'out/whole'.
+        PERIPHERAL_OUT (str, optional): where to save peripheral mask. Defaults to 'out/peripheral'.
+        CENTRAL_OUT (str, optional): where to save central. Defaults to 'out/central'.
+        COMBINED_OUT (str, optional): where to save combined masks. Defaults to 'out/combined'.
 
     """
     # Check if variables are sound:
@@ -197,26 +197,19 @@ def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: s
 
     if COMBINED_PATH:
         os.remove('temp')
-        os.makedirs('out/combined')
-        join_masks(PERIPHERAL_OUT, CENTRAL_OUT, 'out/combined')
+
+    os.makedirs(COMBINED_OUT)
+    join_masks(PERIPHERAL_OUT, CENTRAL_OUT, COMBINED_OUT)
 
 
-LESION_OUT = 'out/lesions'
-
-
-def qc_lesion(LESION_PATH: str,
-              to_save: bool = True, changed_only: bool = True) -> None:
-    """_summary_
+def qc_lesion(LESION_PATH: str, to_save: bool = True, changed_only: bool = True, LESION_OUT: str = 'out/lesions') -> None:
+    """Perform quality control on lesion masks.
 
     Args:
-        WHOLE_PATH (str, optional): path to whole prostate masks. Defaults to None.
-        PERIPHERAL_PATH (str, optional): path to peripheral zone masks. Defaults to None.
-        CENTRAL_PATH (str, optional): path to central zone masks. Defaults to None.
-        COMBINED_PATH (str, optional): path to combined peripheral and central zone masks (Must be pz=1, cz=2!!!). Defaults to None.
-        to_save (bool, optional): to save or not. Defaults to True.
-        changed_only (bool, optional): to save only if changes made. Defaults to True.
-        check_whole (bool, optional): to check if whole masks == sum of zonal masks. Defaults to False.
-
+        LESION_PATH (str): path to original lesion masks
+        to_save (bool, optional): to save changed masks or not. Defaults to True.
+        changed_only (bool, optional): if save to only save changed masks or all. Defaults to True.
+        LESION_OUT (str, optional): where to save out masks. Defaults to 'out/lesions'.
     """
     # Check if variables are sound:
 
