@@ -1,29 +1,58 @@
 # ProstateSeg_QC
 
 
-ProstateSeg_QC is a quality control algorithm to fix prostate zone segmentation masks. It finds and rectifies common errors that occur during manual segmentation.
+ProstateSeg_QC is a quality control algorithm to fix prostate zone and lesion segmentation masks. It finds and rectifies common errors that occur during manual segmentation.
 
-## Method
+## What it does
 
 This is an all-in-one algorithm to process the entire dataset. It is largely based on finding and analyzing connected components.
 
-The algorithm requires separate files for the whole prostate mask, the peripheral zone mask and the non-peripheral (central) zone mask. Here is what it does:
-- Finds and removes all small connected components from all the masks.
+QC of zone segmentation masks:
 
-![Example 1](examples/filter.jpg)
+1. Finds and removes all small connected components from all the masks.
+2. Finds and patches all small holes in the masks.
+3. Finds snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask. It converts those to peripheral zone.
+4. Checks if the whole mask equals the sum of the peripheral and central zone masks. If not, it replaces the whole mask. (optional)
+
+QC of lesion segmentation masks:
+1. Finds and removes all small connected components from all the masks.
+2. Finds and patches all small holes in the masks.
+
+## Examples
+Some examples of before and after the QC.
+
+<style>
+.center {
+  position: relative;
 
 
-- Finds and patches all small holes in the masks.
+.outer-div {
+  height: 200px;
+  width: 200px;
+  text-align: center;
+  border: 1px solid #000;
+}
 
-![Example 2](examples/hole_in_center.jpg)
+img {
+width:30%;
+height:auto;
+}
+  
+}
+</style>
 
+<div class="outer-div">
+<center>
+<div class="center"> Filtering small components <div >  <img src="./examples/fragment_before.png" width="400" height="400" /> <img src="./examples/fragment_after.png" width="400" height="400" alt="example 1"/> 
+</div></div>
 
-- Finds snippets that are labeled as central zone but were very clearly just small errors when marking the peripheral zone mask onto the whole prostate mask. It converts those to peripheral zone.
+<div class="center"> Patching holes <div >  <img src="./examples/hole_before.png" width="250" height="250" /> <img src="./examples/hole_after.png" width="250" height="250" alt="example 2"/> 
+</div></div>
 
-![Example 3](examples/snippet_red.jpg)
+<div class="center"> Fixing snippets <div >  <img src="./examples/snippet_before.png" width="250" height="250" /> <img src="./examples/snippet_after.png" width="250" height="250" alt="example 3"/> 
+</div></div>
+</div>
 
-
-- Checks if the whole mask equals the sum of the peripheral and central zone masks. If not, it replaces the whole mask.
 
 
 ## Requirements
