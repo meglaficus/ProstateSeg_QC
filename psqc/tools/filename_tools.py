@@ -13,12 +13,14 @@ def find_seq_num(scan_name, number_of_digits=4, ignore_miss=False) -> str:
     Returns:
         str: finds the sequence number of the scan (does not correct if it is not 4 digits)
     """
-    if number_of_digits == 3:
+    if number_of_digits == 2:
+        pattern = re.compile(r'\d{2,}')
+    elif number_of_digits == 3:
         pattern = re.compile(r'\d{3,}')
     elif number_of_digits == 4:
         pattern = re.compile(r'\d{4,}')
     else:
-        raise Exception('Invalid number of digits chosen, pick 3 or 4')
+        raise Exception('Invalid number of digits chosen, pick 2, 3 or 4')
 
     result = re.findall(pattern, scan_name)
     if len(result) == 1:
@@ -60,6 +62,11 @@ def find_scan_name(pt_id: str, directory: str, step: bool = True) -> str:
     elif step:
         matching_scan_names = [
             i for i in list_of_names if find_seq_num(i, number_of_digits=3, ignore_miss=True) == str(int(pt_id)).zfill(3)]
+        if len(matching_scan_names) == 1:
+            return matching_scan_names[0]
+        else:
+            matching_scan_names = [
+                i for i in list_of_names if find_seq_num(i, number_of_digits=2, ignore_miss=True) == str(int(pt_id)).zfill(3)]
         if len(matching_scan_names) == 1:
             return matching_scan_names[0]
         else:

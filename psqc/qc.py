@@ -65,7 +65,10 @@ def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: s
         try:
             pt_id = find_seq_num(scan_name)
         except:
-            pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
+            try:
+                pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
+            except:
+                pt_id = find_seq_num(scan_name, number_of_digits=2).zfill(4)
 
         central_scan_name = find_scan_name(pt_id, central_path)
         central_scan_path = os.path.join(central_path, central_scan_name)
@@ -227,12 +230,7 @@ def qc_lesion(lesions_path: str, to_save: bool = True, changed_only: bool = True
     df = pd.DataFrame(
         columns=['scan_name', 'lesion_filtered', 'lesion_patched'])
 
-    for scan_name in tqdm(scan_names):
-        # Finds patient id to find matching mask in other folders
-        try:
-            pt_id = find_seq_num(scan_name)
-        except:
-            pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
+    for i, scan_name in enumerate(tqdm(scan_names)):
 
         scan_path = os.path.join(lesions_path, scan_name)
         lesion_scan = Scan(path=scan_path)
@@ -251,9 +249,9 @@ def qc_lesion(lesions_path: str, to_save: bool = True, changed_only: bool = True
                     os.path.join(lesions_out, scan_name))
 
         # Adds row to dataframe, logging all the findings
-        df.loc[pt_id] = {'scan_name': scan_name,
-                         'lesion_filtered': lesion_aug.filtered, 'lesion_patched': lesion_aug.patched,
-                         }
+        df.loc[i] = {'scan_name': scan_name,
+                     'lesion_filtered': lesion_aug.filtered, 'lesion_patched': lesion_aug.patched,
+                     }
 
     # Saves information about all changes to a csv file
     df.sort_index(inplace=True)
