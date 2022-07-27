@@ -54,10 +54,10 @@ The program requires these modules to be installed:
 from psqc.qc import qc_zone, qc_lesion
 
 # To do quality control on zone masks
-qc_zone(COMBINED_PATH='path/to/combined/mask/directory')
+qc_zone(combined_path='path/to/combined/mask/directory')
 
 # To do quality control on lesion masks
-qc_lesion(LESION_PATH='path/to/lesion/mask/directory')
+qc_lesion(lesion_path='path/to/lesion/mask/directory')
 ```
 
 
