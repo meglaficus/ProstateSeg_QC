@@ -19,41 +19,16 @@ QC of lesion segmentation masks:
 2. Finds and patches all small holes in the masks.
 
 ## Examples
-Some examples of before and after the QC.
-
-<style>
-.center {
-  position: relative;
 
 
-.outer-div {
-  height: 200px;
-  width: 200px;
-  text-align: center;
-  border: 1px solid #000;
-}
-
-img {
-width:30%;
-height:auto;
-}
-  
-}
-</style>
-
-<div class="outer-div">
-<center>
-<div class="center"> Filtering small components <div >  <img src="./examples/fragment_before.png" width="400" height="400" /> <img src="./examples/fragment_after.png" width="400" height="400" alt="example 1"/> 
-</div></div>
-
+<div class="center"> Filtering small components <div >  <img title="Filtering small components" src="./examples/fragment_before.png" width="250" height="250" /> <img src="./examples/fragment_after.png" width="250" height="250" alt="example 1"/> 
+ </div></div>
+ 
 <div class="center"> Patching holes <div >  <img src="./examples/hole_before.png" width="250" height="250" /> <img src="./examples/hole_after.png" width="250" height="250" alt="example 2"/> 
-</div></div>
+ </div></div>
 
 <div class="center"> Fixing snippets <div >  <img src="./examples/snippet_before.png" width="250" height="250" /> <img src="./examples/snippet_after.png" width="250" height="250" alt="example 3"/> 
 </div></div>
-</div>
-
-
 
 ## Requirements
 
@@ -71,7 +46,6 @@ The program requires these modules to be installed:
 
 
 ## Usage
-To do quality control on zone masks:
 ```python
 from pqc.qc import qc_zone, qc_lesion
 
