@@ -51,7 +51,7 @@ The program requires these modules to be installed:
 
 ## Usage
 ```python
-from pqc.qc import qc_zone, qc_lesion
+from psqc.qc import qc_zone, qc_lesion
 
 # To do quality control on zone masks
 qc_zone(COMBINED_PATH='path/to/combined/mask/directory')
