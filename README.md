@@ -20,15 +20,19 @@ QC of lesion segmentation masks:
 
 ## Examples
 
+<p align="center"> Filtering small components </p>
 
-<div class="center"> Filtering small components <div >  <img title="Filtering small components" src="./examples/fragment_before.png" width="250" height="250" /> <img src="./examples/fragment_after.png" width="250" height="250" alt="example 1"/> 
- </div></div>
- 
-<div class="center"> Patching holes <div >  <img src="./examples/hole_before.png" width="250" height="250" /> <img src="./examples/hole_after.png" width="250" height="250" alt="example 2"/> 
- </div></div>
+<p align="center"> <img title="Filtering small components" src="./examples/fragment_before.png" width="250" height="250" /> <img src="./examples/fragment_after.png" width="250" height="250" alt="example 1"/> 
+</p>
 
-<div class="center"> Fixing snippets <div >  <img src="./examples/snippet_before.png" width="250" height="250" /> <img src="./examples/snippet_after.png" width="250" height="250" alt="example 3"/> 
-</div></div>
+
+<p align="center"> Patching holes </p>
+<p align="center"><img src="./examples/hole_before.png" width="250" height="250" /> <img src="./examples/hole_after.png" width="250" height="250" alt="example 2"/> 
+</p>
+
+<p align="center">Fixing snippets</p>
+ <p align="center"><img src="./examples/snippet_before.png" width="250" height="250" /> <img src="./examples/snippet_after.png" width="250" height="250" alt="example 3"/> 
+</p>
 
 ## Requirements
 
