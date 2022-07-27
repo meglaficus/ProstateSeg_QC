@@ -7,21 +7,25 @@ from ..tools.filename_tools import find_seq_num, find_scan_name
 """ Works to combine the two separate files for peripheral zone mask and central zone mask in the italian label-set.
     To use if originally had joined masks. Makes pz 1 and tz 2!"""
 
-def join_masks(PERIPHERAL_ZONE_DIR: str, CENTRAL_ZONE_DIR: str, OUT_DIR: str) -> None:
-    os.makedirs(OUT_DIR, exist_ok=True)
+
+def join_masks(peripheral_dir: str, central_dir: str, out_dir: str) -> None:
+    os.makedirs(out_dir, exist_ok=True)
 
     print('Joining masks...')
-    for mask in tqdm(os.listdir(PERIPHERAL_ZONE_DIR)):
+    for mask in tqdm(os.listdir(peripheral_dir)):
         if mask.endswith('.nii.gz'):
-            pt_id = find_seq_num(mask, number_of_digits=3)
+            try:
+                pt_id = find_seq_num(mask)
+            except:
+                pt_id = find_seq_num(mask, number_of_digits=3).zfill(4)
 
-            perif_mask_path = os.path.join(PERIPHERAL_ZONE_DIR, mask)
+            perif_mask_path = os.path.join(peripheral_dir, mask)
             perif_mask_img = sitk.ReadImage(perif_mask_path)
             perif_mask_arr = sitk.GetArrayFromImage(perif_mask_img)
 
-            central_mask_name = find_scan_name(pt_id, CENTRAL_ZONE_DIR)
+            central_mask_name = find_scan_name(pt_id, central_dir)
             central_mask_path = os.path.join(
-                CENTRAL_ZONE_DIR, central_mask_name)
+                central_dir, central_mask_name)
             central_mask_img = sitk.ReadImage(central_mask_path)
             central_mask_array = sitk.GetArrayFromImage(central_mask_img)
 
@@ -37,4 +41,4 @@ def join_masks(PERIPHERAL_ZONE_DIR: str, CENTRAL_ZONE_DIR: str, OUT_DIR: str) ->
             combi_mask_img.CopyInformation(central_mask_img)
 
             sitk.WriteImage(combi_mask_img, os.path.join(
-                OUT_DIR, f'{mask}'))
+                out_dir, f'{mask}'))

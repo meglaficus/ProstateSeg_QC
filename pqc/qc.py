@@ -11,48 +11,48 @@ from .tools.separate_masks import separate_masks
 from .tools.join_masks import join_masks
 
 
-def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: str = None, COMBINED_PATH: str = None,
-            to_save: bool = True, changed_only: bool = True, check_whole: bool = False, WHOLE_OUT: str = 'out/whole',
-            PERIPHERAL_OUT: str = 'out/peripheral', CENTRAL_OUT: str = 'out/central', COMBINED_OUT: str = 'out/combined') -> None:
+def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: str = None, combined_path: str = None,
+            to_save: bool = True, changed_only: bool = True, check_whole: bool = False, whole_out: str = 'out/whole', combine_output: bool = True,
+            peripheral_out: str = 'out/peripheral', central_out: str = 'out/central', combined_out: str = 'out/combined') -> None:
     """Quality control on zonal masks.
 
     Args:
-        WHOLE_PATH (str, optional): path to whole prostate masks. Defaults to None.
-        PERIPHERAL_PATH (str, optional): path to peripheral zone masks. Defaults to None.
-        CENTRAL_PATH (str, optional): path to central zone masks. Defaults to None.
-        COMBINED_PATH (str, optional): path to combined peripheral and central zone masks (Must be pz=1, cz=2!!!). Defaults to None.
+        whole_path (str, optional): path to whole prostate masks. Defaults to None.
+        peripheral_path (str, optional): path to peripheral zone masks. Defaults to None.
+        central_path (str, optional): path to central zone masks. Defaults to None.
+        combined_path (str, optional): path to combined peripheral and central zone masks (Must be pz=1, cz=2!!!). Defaults to None.
         to_save (bool, optional): to save or not. Defaults to True.
         changed_only (bool, optional): to save only if changes made. Defaults to True.
         check_whole (bool, optional): to check if whole masks == sum of zonal masks. Defaults to False.
-        WHOLE_OUT (str, optional): where to save whole mask. Defaults to 'out/whole'.
-        PERIPHERAL_OUT (str, optional): where to save peripheral mask. Defaults to 'out/peripheral'.
-        CENTRAL_OUT (str, optional): where to save central. Defaults to 'out/central'.
-        COMBINED_OUT (str, optional): where to save combined masks. Defaults to 'out/combined'.
+        whole_out (str, optional): where to save whole mask. Defaults to 'out/whole'.
+        peripheral_out (str, optional): where to save peripheral mask. Defaults to 'out/peripheral'.
+        central_out (str, optional): where to save central. Defaults to 'out/central'.
+        combined_out (str, optional): where to save combined masks. Defaults to 'out/combined'.
 
     """
     # Check if variables are sound:
-    if COMBINED_PATH != None:
-        if any([WHOLE_PATH, PERIPHERAL_PATH, CENTRAL_PATH]):
+    if combined_path != None:
+        if any([whole_path, peripheral_path, central_path]):
             raise Exception(
-                'Only one of either COMBINED_PATH or other input paths (WHOLE_PATH, PERIPHERAL_PATH, CENTRAL_PATH) can be specified')
+                'Only one of either combined_path or other input paths (whole_path, peripheral_path, central_path) can be specified')
 
-    if not WHOLE_PATH and check_whole:
+    if not whole_path and check_whole:
         raise Exception(
-            'If checking whole scan match, WHOLE_PATH must be specified')
+            'If checking whole scan match, whole_path must be specified')
 
-    os.makedirs(WHOLE_OUT, exist_ok=True)
-    os.makedirs(PERIPHERAL_OUT, exist_ok=True)
-    os.makedirs(CENTRAL_OUT, exist_ok=True)
+    os.makedirs(whole_out, exist_ok=True)
+    os.makedirs(peripheral_out, exist_ok=True)
+    os.makedirs(central_out, exist_ok=True)
     os.makedirs('change_log', exist_ok=True)
 
     # If combined scans provided, separate them:
-    if COMBINED_PATH:
-        separate_masks(ORIG=COMBINED_PATH, OUT='temp')
-        PERIPHERAL_PATH = 'temp/peripheral'
+    if combined_path:
+        separate_masks(orig=combined_path, OUT='temp')
+        peripheral_path = 'temp/peripheral'
 
     # Create dataframe to store all changes
     scan_names = sorted(i for i in os.listdir(
-        WHOLE_PATH) if i.endswith(('.nii.gz', '.nii', '.mhd')))
+        whole_path) if i.endswith(('.nii.gz', '.nii', '.mhd')))
     if check_whole:
         df = pd.DataFrame(columns=['scan_name', 'whole_filtered', 'whole_patched', 'whole_mismatch', 'perif_filtered',
                                    'perif_patched', 'central_filtered', 'central_patched', 'strays_converted'])
@@ -67,12 +67,12 @@ def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: s
         except:
             pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
 
-        central_scan_name = find_scan_name(pt_id, CENTRAL_PATH)
-        central_scan_path = os.path.join(CENTRAL_PATH, central_scan_name)
+        central_scan_name = find_scan_name(pt_id, central_path)
+        central_scan_path = os.path.join(central_path, central_scan_name)
         central_scan = Scan(path=central_scan_path)
 
-        perif_scan_name = find_scan_name(pt_id, PERIPHERAL_PATH)
-        perif_scan_path = os.path.join(PERIPHERAL_PATH, perif_scan_name)
+        perif_scan_name = find_scan_name(pt_id, peripheral_path)
+        perif_scan_path = os.path.join(peripheral_path, perif_scan_name)
         perif_scan = Scan(path=perif_scan_path)
 
         # Create another 'whole' scan to make all the three masks match up
@@ -83,7 +83,7 @@ def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: s
         mismatch = False
 
         if check_whole:
-            whole_scan_path = os.path.join(WHOLE_PATH, scan_name)
+            whole_scan_path = os.path.join(whole_path, scan_name)
             whole_scan0 = Scan(path=whole_scan_path)
 
             try:
@@ -125,28 +125,28 @@ def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: s
             # If changed_only is True, only write the files if there were changes else writes all files
             if changed_only:
                 if check_whole:
-                    if whole_scan_aug.filtered or whole_scan_aug.patched or mismatch:
+                    if any((whole_scan_aug.filtered, whole_scan_aug.patched, mismatch, perif_scan_aug_raw.filtered, perif_scan_aug_raw.patched, central_scan_aug.filtered, central_scan_aug.patched, converted_strays)):
                         whole_scan_aug.write_image(
-                            os.path.join(WHOLE_OUT, scan_name))
+                            os.path.join(whole_out, scan_name))
+                        perif_scan_aug.write_image(
+                            os.path.join(peripheral_out, scan_name))
+                        central_scan_aug.write_image(
+                            os.path.join(central_out, scan_name))
                 else:
-                    if whole_scan_aug.filtered or whole_scan_aug.patched:
+                    if any((whole_scan_aug.filtered, whole_scan_aug.patched, perif_scan_aug_raw.filtered, perif_scan_aug_raw.patched, central_scan_aug.filtered, central_scan_aug.patched, converted_strays)):
                         whole_scan_aug.write_image(
-                            os.path.join(WHOLE_OUT, scan_name))
-
-                if perif_scan_aug_raw.filtered or perif_scan_aug_raw.patched or converted_strays:
-                    perif_scan_aug.write_image(
-                        os.path.join(PERIPHERAL_OUT, scan_name))
-
-                if central_scan_aug.filtered or central_scan_aug.patched or converted_strays:
-                    central_scan_aug.write_image(
-                        os.path.join(CENTRAL_OUT, scan_name))
+                            os.path.join(whole_out, scan_name))
+                        perif_scan_aug.write_image(
+                            os.path.join(peripheral_out, scan_name))
+                        central_scan_aug.write_image(
+                            os.path.join(central_out, scan_name))
 
             else:
-                whole_scan_aug.write_image(os.path.join(WHOLE_OUT, scan_name))
+                whole_scan_aug.write_image(os.path.join(whole_out, scan_name))
                 central_scan_aug.write_image(
-                    os.path.join(CENTRAL_OUT, central_scan_name))
+                    os.path.join(central_out, central_scan_name))
                 perif_scan_aug.write_image(
-                    os.path.join(PERIPHERAL_OUT, perif_scan_name))
+                    os.path.join(peripheral_out, perif_scan_name))
 
         # Adds row to dataframe, logging all the findings
         if check_whole:
@@ -195,30 +195,34 @@ def qc_zone(WHOLE_PATH: str = None, PERIPHERAL_PATH: str = None, CENTRAL_PATH: s
     for column in df.columns[1:]:
         print(column, df[column].sum())
 
-    if COMBINED_PATH:
-        os.remove('temp')
+    if combined_path:
+        try:
+            os.remove('temp')
+        except Exception as e:
+            print('Could not remove temp dir because: ', e)
 
-    os.makedirs(COMBINED_OUT)
-    join_masks(PERIPHERAL_OUT, CENTRAL_OUT, COMBINED_OUT)
+    if combine_output:
+        os.makedirs(combined_out, exist_ok=True)
+        join_masks(peripheral_out, central_out, combined_out)
 
 
-def qc_lesion(LESION_PATH: str, to_save: bool = True, changed_only: bool = True, LESION_OUT: str = 'out/lesions') -> None:
+def qc_lesion(lesions_path: str, to_save: bool = True, changed_only: bool = True, lesions_out: str = 'out/lesions') -> None:
     """Perform quality control on lesion masks.
 
     Args:
-        LESION_PATH (str): path to original lesion masks
+        lesions_path (str): path to original lesion masks
         to_save (bool, optional): to save changed masks or not. Defaults to True.
         changed_only (bool, optional): if save to only save changed masks or all. Defaults to True.
-        LESION_OUT (str, optional): where to save out masks. Defaults to 'out/lesions'.
+        lesions_out (str, optional): where to save out masks. Defaults to 'out/lesions'.
     """
     # Check if variables are sound:
 
-    os.makedirs(LESION_OUT, exist_ok=True)
+    os.makedirs(lesions_out, exist_ok=True)
     os.makedirs('change_log', exist_ok=True)
 
     # Create dataframe to store all changes
     scan_names = sorted(i for i in os.listdir(
-        LESION_PATH) if i.endswith(('.nii.gz', '.nii', '.mhd')))
+        lesions_path) if i.endswith(('.nii.gz', '.nii', '.mhd')))
 
     df = pd.DataFrame(
         columns=['scan_name', 'lesion_filtered', 'lesion_patched'])
@@ -230,7 +234,7 @@ def qc_lesion(LESION_PATH: str, to_save: bool = True, changed_only: bool = True,
         except:
             pt_id = find_seq_num(scan_name, number_of_digits=3).zfill(4)
 
-        scan_path = os.path.join(LESION_PATH, scan_name)
+        scan_path = os.path.join(lesions_path, scan_name)
         lesion_scan = Scan(path=scan_path)
         lesion_aug = process_scan(
             lesion_scan, to_patch_holes=True, to_filter_small_components=True)
@@ -240,11 +244,11 @@ def qc_lesion(LESION_PATH: str, to_save: bool = True, changed_only: bool = True,
             if changed_only:
                 if lesion_aug.filtered or lesion_aug.patched:
                     lesion_aug.write_image(
-                        os.path.join(LESION_OUT, scan_name))
+                        os.path.join(lesions_out, scan_name))
 
             else:
                 lesion_aug.write_image(
-                    os.path.join(LESION_OUT, scan_name))
+                    os.path.join(lesions_out, scan_name))
 
         # Adds row to dataframe, logging all the findings
         df.loc[pt_id] = {'scan_name': scan_name,

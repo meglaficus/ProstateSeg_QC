@@ -6,10 +6,10 @@ from tqdm import tqdm
 """ Separates the masks if they were originally joined. This is needed in the for the main function"""
 
 
-def separate_masks(ORIG: str, OUT: str) -> None:
+def separate_masks(orig: str, OUT: str) -> None:
 
-    for file_name in tqdm([i for i in os.listdir(ORIG) if i.endswith(('.mhd', '.nii.gz', '.nii'))]):
-        path = os.path.join(ORIG, file_name)
+    for file_name in tqdm([i for i in os.listdir(orig) if i.endswith(('.mhd', '.nii.gz', '.nii'))]):
+        path = os.path.join(orig, file_name)
         img = sitk.ReadImage(path)
         array = sitk.GetArrayFromImage(img)
 
