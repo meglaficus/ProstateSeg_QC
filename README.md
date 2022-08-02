@@ -51,7 +51,7 @@ The program requires these modules to be installed:
 
 ## Usage
 ```python
-from psqc.qc import qc_zone, qc_lesion
+from psqc import qc_zone, qc_lesion
 
 # To do quality control on zone masks
 qc_zone(combined_path='path/to/combined/mask/directory')
@@ -62,7 +62,7 @@ qc_lesion(lesion_path='path/to/lesion/mask/directory')
 
 
 
-By default the program saves only the masks that were changed, saving them into new directories that are created in the cwd. It also creates .csv files that store the information on all the errors that were found.
+By default the program saves only the masks that were changed, saving them into new directories that are created in the cwd. This can all be changed by passing appropriate arguments into the respective functions. It also creates .csv files that store the information on all the errors that were found.
 
 
 ## Contributing

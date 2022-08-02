@@ -2,7 +2,7 @@ import os
 import SimpleITK as sitk
 from tqdm import tqdm
 import numpy as np
-from ..tools.filename_tools import find_seq_num, find_scan_name
+from psqc_tools.filename_tools import find_seq_num, find_scan_name
 
 """ Works to combine the two separate files for peripheral zone mask and central zone mask in the italian label-set.
     To use if originally had joined masks. Makes pz 1 and tz 2!"""

@@ -2,7 +2,7 @@ import cc3d
 import SimpleITK as sitk
 import numpy as np
 from copy import deepcopy
-from ..tools.scan_class import Scan
+from psqc_tools.scan_class import Scan
 
 def find_sort_components(array: np.ndarray, connectivity: int = 6) -> list:
     """finds all connected components in the array and sorts them by voxel number.

@@ -1,14 +1,14 @@
 from copy import deepcopy
 
 import pandas as pd
-from .tools.filename_tools import *
+from psqc_tools.filename_tools import *
 from tqdm import tqdm
 import numpy as np
 
-from .tools.functions import filter_small_components, process_scan
-from .tools.scan_class import Scan
-from .tools.separate_masks import separate_masks
-from .tools.join_masks import join_masks
+from psqc_tools.functions import filter_small_components, process_scan
+from psqc_tools.scan_class import Scan
+from psqc_tools.separate_masks import separate_masks
+from psqc_tools.join_masks import join_masks
 
 
 def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: str = None, combined_path: str = None,
