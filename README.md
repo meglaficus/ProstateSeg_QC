@@ -46,8 +46,10 @@ The program requires these modules to be installed:
 - regex
 
 ## Installation
+Comming soon:
 `pip install prostate_seg_qc`
 
+For now clone the repository, navigate to the folder where the clone resides and run: `pip install -e .`
 
 ## Usage
 ```python

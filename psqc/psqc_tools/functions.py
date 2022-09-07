@@ -4,6 +4,7 @@ import numpy as np
 from copy import deepcopy
 from psqc_tools.scan_class import Scan
 
+
 def find_sort_components(array: np.ndarray, connectivity: int = 6) -> list:
     """finds all connected components in the array and sorts them by voxel number.
 
@@ -33,11 +34,12 @@ def find_sort_components(array: np.ndarray, connectivity: int = 6) -> list:
     return arrays
 
 
-def filter_small_components(base_array: np.ndarray):
+def filter_small_components(base_array: np.ndarray, voxel_threshold: int = 10) -> tuple:
     """Finds all connected components in the array and filters out those that are smaller than 1/10 of the largest component.
 
     Args:
         base_array (np.ndarray): mask array
+        voxel_threshold(ind, optional): minimum fraction of the largest component (in voxels). Defaults to 10.
 
     Returns:
         tuple[np.ndarray, bool]: tuple (filtered_array, was_anything_changed)
@@ -50,7 +52,7 @@ def filter_small_components(base_array: np.ndarray):
         combined_array = np.zeros(base_array.shape)
 
         for size, array in arrays:
-            if size > biggest / 10:
+            if size > biggest / voxel_threshold:
                 combined_array += array
 
         return combined_array, True
