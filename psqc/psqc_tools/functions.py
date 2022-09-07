@@ -59,7 +59,7 @@ def filter_small_components(base_array: np.ndarray):
         return base_array, False
 
 
-def patch_holes(base_array: np.ndarray) -> tuple[np.ndarray, bool]:
+def patch_holes(base_array: np.ndarray) -> tuple:
     """Patches holes in the connected components.
 
     Args:
