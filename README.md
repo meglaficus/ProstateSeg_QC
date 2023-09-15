@@ -67,5 +67,7 @@ qc_lesion(lesion_path='path/to/lesion/mask/directory')
 By default the program saves only the masks that were changed, saving them into new directories that are created in the cwd. This can all be changed by passing appropriate arguments into the respective functions. It also creates .csv files that store the information on all the errors that were found.
 
 
+The method was developed at the CIMORe group at the Norwegian University of Science and Technology (NTNU) in Trondheim, Norway. https://www.ntnu.edu/isb/cimore
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
