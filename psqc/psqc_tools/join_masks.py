@@ -13,7 +13,7 @@ def join_masks(peripheral_dir: str, central_dir: str, out_dir: str) -> None:
 
     print('Joining masks...')
     for mask in tqdm(os.listdir(peripheral_dir)):
-        if mask.endswith('.nii.gz'):
+        if mask.endswith(('.mhd', '.nii.gz', '.nii')):
             try:
                 pt_id = find_seq_num(mask)
             except:

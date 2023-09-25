@@ -40,26 +40,52 @@ def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: s
         raise Exception(
             'If checking whole scan match, whole_path must be specified')
 
+    if os.path.exists(whole_out):
+        print('Warning: "out" folder already exists, files may be overwritten. Stop code now to avoid this.')
+
     os.makedirs(whole_out, exist_ok=True)
     os.makedirs(peripheral_out, exist_ok=True)
     os.makedirs(central_out, exist_ok=True)
-    os.makedirs('change_log', exist_ok=True)
+
+    if os.path.exists('change_log'):
+        suffix = 1
+        while True:
+            if os.path.exists('change_log' + '_' + str(suffix)):
+                suffix += 1
+            else:
+                break
+        os.makedirs('change_log' + '_' + str(suffix), exist_ok=True)
+        change_log_loc = 'change_log' + '_' + str(suffix)
+        print('saving change_log to: change_log_' + str(suffix))
+    else:
+        os.makedirs('change_log', exist_ok=True)
+        change_log_loc = 'change_log'
+        print('saving change_log to: change_log')
 
     # If combined scans provided, separate them:
     if combined_path:
+        if os.path.exists('temp'):
+            print('Warning: "temp" folder already exists, if error occurs, delete "temp" folder and restart code.')
+        print('Separating combined masks into peripheral, central, and whole masks...')
         separate_masks(orig=combined_path, OUT='temp')
         peripheral_path = 'temp/peripheral'
+        central_path = 'temp/central'
+        whole_path = 'temp/whole'
 
     # Create dataframe to store all changes
-    scan_names = sorted(i for i in os.listdir(
-        whole_path) if i.endswith(('.nii.gz', '.nii', '.mhd')))
+
     if check_whole:
+        scan_names = sorted(i for i in os.listdir(
+            whole_path) if i.endswith(('.nii.gz', '.nii', '.mhd')))
         df = pd.DataFrame(columns=['scan_name', 'whole_filtered', 'whole_patched', 'whole_mismatch', 'perif_filtered',
                                    'perif_patched', 'central_filtered', 'central_patched', 'strays_converted'])
     else:
+        scan_names = sorted(i for i in os.listdir(
+            peripheral_path) if i.endswith(('.nii.gz', '.nii', '.mhd')))
         df = pd.DataFrame(columns=['scan_name', 'whole_filtered', 'whole_patched', 'perif_filtered',
                                    'perif_patched', 'central_filtered', 'central_patched', 'strays_converted'])
 
+    print('Starting quality control...')
     for scan_name in tqdm(scan_names):
         # Finds patient id to find matching mask in other folders
         try:
@@ -116,13 +142,26 @@ def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: s
         # Does initial processing of peripheral zone mask
 
         perif_scan_aug_raw = process_scan(
-            perif_scan, to_patch_holes=True, to_filter_small_components=True)
+            perif_scan, to_patch_holes=True, to_filter_small_components=True, whole_to_compare=whole_scan_aug)
 
         # Adds the small components that were in the central zone mask and in the processed whole prostate mask.
         # These are considered 'strays' and are believed to be erroneously included in the central zone mask.
         perif_strays = central_array_aug0 - filtered_central_array
         perif_array_aug = perif_scan_aug_raw.array + perif_strays
         perif_scan_aug = Scan(array=perif_array_aug, ref=perif_scan.image)
+
+        # Now to check for (unlikely) holes in the prostate mask that are on the border between PZ and CZ.
+
+        post_combined_whole = np.zeros(perif_scan_aug.array.shape)
+        post_combined_whole[perif_scan_aug.array > 0] = 1
+        post_combined_whole[central_scan_aug.array > 0] = 1
+
+        if np.array_equal(post_combined_whole, whole_scan_aug.array):
+            new_central_array = central_scan_aug.array.copy()
+            new_central_array[(central_scan_aug.array == 0) & (whole_scan_aug.array != 0)] = 1
+
+            central_scan_aug.array = new_central_array
+            central_scan_aug.patched == True
 
         if to_save:
             # If changed_only is True, only write the files if there were changes else writes all files
@@ -167,7 +206,7 @@ def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: s
 
     # Saves information about all changes to a csv file
     df.sort_index(inplace=True)
-    df.to_csv('change_log/all_mods.csv')
+    df.to_csv(os.path.join(change_log_loc, 'all_mods.csv'))
 
     # Creates new csv files for each zone, including only masks that were changed and logs the changes
     if check_whole:
@@ -181,19 +220,19 @@ def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: s
         whole_df = whole_df[(whole_df['whole_filtered'] == True) | (
             whole_df['whole_patched'] == True)]
 
-    whole_df.to_csv('change_log/whole_mods.csv')
+    whole_df.to_csv(os.path.join(change_log_loc, 'whole_mods.csv'))
 
     central_df = df[['scan_name', 'central_filtered',
                      'central_patched', 'strays_converted']]
     central_df = central_df[(central_df['central_filtered'] == True) | (
         central_df['central_patched'] == True) | (central_df['strays_converted'] == True)]
-    central_df.to_csv('change_log/central_mods.csv')
+    central_df.to_csv(os.path.join(change_log_loc, 'central_mods.csv'))
 
     perif_df = df[['scan_name', 'perif_filtered',
                    'perif_patched', 'strays_converted']]
     perif_df = perif_df[(perif_df['perif_filtered'] == True) | (
         perif_df['perif_patched'] == True) | (perif_df['strays_converted'] == True)]
-    perif_df.to_csv('change_log/perif_mods.csv')
+    perif_df.to_csv(os.path.join(change_log_loc, 'perif_mods.csv'))
 
     for column in df.columns[1:]:
         print(column, df[column].sum())
@@ -206,6 +245,7 @@ def qc_zone(whole_path: str = None, peripheral_path: str = None, central_path: s
 
     if combine_output:
         os.makedirs(combined_out, exist_ok=True)
+        print()
         join_masks(peripheral_out, central_out, combined_out)
 
 
@@ -220,8 +260,31 @@ def qc_lesion(lesions_path: str, to_save: bool = True, changed_only: bool = True
     """
     # Check if variables are sound:
 
-    os.makedirs(lesions_out, exist_ok=True)
-    os.makedirs('change_log', exist_ok=True)
+    if os.path.exists(lesions_out):
+        suffix = 1
+        while True:
+            if os.path.exists(lesions_out + '_' + str(suffix)):
+                suffix += 1
+            else:
+                break
+        os.makedirs(lesions_out + '_' + str(suffix), exist_ok=True)
+        print('saving lesions to: ', lesions_out + '_' + str(suffix))
+    else:
+        os.makedirs(lesions_out, exist_ok=True)
+        print('saving lesions to: ', lesions_out)
+
+    if os.path.exists('change_log'):
+        suffix = 1
+        while True:
+            if os.path.exists('change_log' + '_' + str(suffix)):
+                suffix += 1
+            else:
+                break
+        os.makedirs('change_log' + '_' + str(suffix), exist_ok=True)
+        print('saving lesions to: change_log_' + str(suffix))
+    else:
+        os.makedirs('change_log', exist_ok=True)
+        print('saving lesions to: change_log')
 
     # Create dataframe to store all changes
     scan_names = sorted(i for i in os.listdir(
